@@ -113,3 +113,4 @@ C:\Users\BRYAN\RiderProjects\Lab8-BryanCama\Lab8-BryanCama\obj\Debug\net8.0\refi
 C:\Users\BRYAN\RiderProjects\Lab8-BryanCama\Lab8-BryanCama\obj\Debug\net8.0\Lab8-BryanCama.pdb
 C:\Users\BRYAN\RiderProjects\Lab8-BryanCama\Lab8-BryanCama\obj\Debug\net8.0\Lab8-BryanCama.genruntimeconfig.cache
 C:\Users\BRYAN\RiderProjects\Lab8-BryanCama\Lab8-BryanCama\obj\Debug\net8.0\ref\Lab8-BryanCama.dll
+C:\Users\BRYAN\RiderProjects\Lab8-BryanCama\Lab8-BryanCama\obj\Debug\net8.0\Lab8-BryanCama.sourcelink.json

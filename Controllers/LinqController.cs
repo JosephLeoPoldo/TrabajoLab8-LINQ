@@ -1,6 +1,7 @@
 ﻿using Lab8_BryanCama.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Lab8_BryanCama.DTOs;
 
 namespace Lab8Bryan.Controllers
 {
@@ -178,6 +179,78 @@ namespace Lab8Bryan.Controllers
                 .ToListAsync();
 
             return clientes.Count > 0 ? Ok(clientes) : NotFound("No se encontraron clientes que hayan comprado ese producto.");
+        }
+        //LAB-09
+        //Consultas con AsNoTracking() - Evitamos el Tracking
+        [HttpGet("clientes-pedidos")]
+        public async Task<IActionResult> GetClientesConPedidos()
+        {
+            var datos = await _context.Clients
+                .AsNoTracking()
+                .Select(c => new ClientePedidosDto
+                {
+                    NombreCliente = c.Name,
+                    Productos = _context.Orders
+                        .Where(o => o.ClientId == c.ClientId)
+                        .Select(o => o.Product.Name)
+                        .ToList()
+                }).ToListAsync();
+
+            return Ok(datos);
+        }
+        //Consultas con Include() - Obtener datos relacionado al cliente - producto
+        [HttpGet("pedido-detalle/{orderId}")]
+        public async Task<IActionResult> GetPedidoConDetalle(int orderId)
+        {
+            var orden = await _context.Orders
+                .AsNoTracking()
+                .Include(o => o.Client)
+                .Include(o => o.Product)
+                .Where(o => o.OrderId == orderId)
+                .Select(o => new DetallePedidoDto
+                {
+                    OrderId = o.OrderId,
+                    Cliente = o.Client.Name,
+                    Producto = o.Product.Name,
+                    Fecha = o.OrderDate
+                })
+                .FirstOrDefaultAsync();
+
+            return orden != null ? Ok(orden) : NotFound("Pedido no encontrado.");
+        }
+
+        //Doble Consulta a la Base de Datos - Obtener nombre de clientes y cantidad total de productos comprados
+        [HttpGet("clientes/total-productos")]
+        public async Task<IActionResult> GetClientesConTotalProductos()
+        {
+            var datos = await _context.Clients
+                .AsNoTracking()
+                .Select(c => new ClienteProductosDto
+                {
+                    NombreCliente = c.Name,
+                    TotalProductos = _context.Orders
+                        .Where(o => o.ClientId == c.ClientId)
+                        .Count()
+                }).ToListAsync();
+            return Ok(datos);
+        }
+
+        //Consulta con Agrupación y Filtros - 
+        [HttpGet("ventas-por-cliente")]
+        public async Task<IActionResult> GetTotalVentasPorCliente()
+        {
+            var resultado = await _context.Orders
+                .AsNoTracking()
+                .GroupBy(o => o.Client.Name)
+                .Select(g => new ClienteVentasDto
+                {
+                    NombreCliente = g.Key,
+                    TotalGastado = g.Sum(o => o.Product.Price)
+                })
+                .OrderByDescending(x => x.TotalGastado)
+                .ToListAsync();
+
+            return Ok(resultado);
         }
 
     }
